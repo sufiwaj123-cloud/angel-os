@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Angel — Personal AI OS</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#030712">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Google Identity Services client library -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <div class="hud-scanline"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-layout">
+    
+    <!-- Desktop Sidebar / Mobile Top Drawer -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-crest"></div>
+        <div class="brand-info">
+          <h1>ANGEL</h1>
+          <span class="subtext">OS // PHASE-01</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" data-target="home">
+          <span class="icon">◈</span> <span class="label">HUD Home</span>
+        </button>
+        <button class="nav-btn" data-target="notes">
+          <span class="icon">▤</span> <span class="label">Memory & Notes</span>
+        </button>
+        <button class="nav-btn" data-target="tasks">
+          <span class="icon">▣</span> <span class="label">Directives / Tasks</span>
+        </button>
+        <button class="nav-btn" data-target="console">
+          <span class="icon">☵</span> <span class="label">Voice Console</span>
+        </button>
+        <button class="nav-btn" data-target="settings">
+          <span class="icon">⚙</span> <span class="label">Core Config</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-status">
+        <div class="status-indicator" id="drive-status-badge">
+          <span class="dot"></span> <span class="text">Drive: Disconnected</span>
+        </div>
+        <div class="status-indicator" id="mic-status-badge">
+          <span class="dot"></span> <span class="text">Mic: Standby</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Dynamic Workspace -->
+    <main class="main-viewport">
+      
+      <!-- Top Status Header -->
+      <header class="hud-header">
+        <div class="telemetry">
+          <span id="current-clock">00:00:00</span>
+          <span class="divider">//</span>
+          <span id="system-date">INIT</span>
+        </div>
+        <div class="header-actions">
+          <button id="quick-mute-btn" class="ctrl-btn" title="Toggle Hardware Mute">MIC ACTIVE</button>
+          <button id="auth-btn" class="ctrl-btn cta">CONNECT DRIVE</button>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <div class="content-scroll">
+        
+        <!-- SECTION 1: HOME -->
+        <section id="view-home" class="view-panel active">
+          <div class="hud-visualizer-container">
+            <div class="reactor-hud" id="reactor-visualizer">
+              <div class="core-ring outer"></div>
+              <div class="core-ring mid"></div>
+              <div class="core-ring inner"></div>
+              <div class="core-pulse" id="hud-pulse"></div>
+              <div class="core-text">ANGEL</div>
+            </div>
+            <div class="hud-status-caption" id="hud-voice-state">STANDBY FOR "ANGEL"</div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="glass-card">
+              <h3>SYSTEM TELEMETRY</h3>
+              <div class="stats-row">
+                <div class="stat-pill"><label>Tasks</label><span id="stat-tasks-count">0</span></div>
+                <div class="stat-pill"><label>Notes</label><span id="stat-notes-count">0</span></div>
+                <div class="stat-pill"><label>Sync</label><span id="stat-sync-time">Never</span></div>
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <h3>RECENT DIRECTIVES</h3>
+              <div class="quick-feed" id="home-tasks-preview">
+                <p class="placeholder-text">No active directives found.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 2: NOTES -->
+        <section id="view-notes" class="view-panel">
+          <div class="view-header">
+            <h2>PERSISTENT NOTES</h2>
+            <div class="header-search">
+              <input type="text" id="notes-search-input" placeholder="Search knowledge base...">
+            </div>
+          </div>
+
+          <div class="crud-composer glass-card">
+            <input type="text" id="note-title-input" placeholder="Note Title...">
+            <textarea id="note-content-input" rows="3" placeholder="Input details or say 'Angel, save note...'"></textarea>
+            <div class="composer-actions">
+              <button class="action-btn" id="save-note-btn">STORE IN MEMORY</button>
+            </div>
+          </div>
+
+          <div class="items-list" id="notes-list-container"></div>
+        </section>
+
+        <!-- SECTION 3: TASKS -->
+        <section id="view-tasks" class="view-panel">
+          <div class="view-header">
+            <h2>DIRECTIVES BOARD</h2>
+            <div class="filter-group">
+              <button class="filter-pill active" data-filter="all">All</button>
+              <button class="filter-pill" data-filter="high">High</button>
+              <button class="filter-pill" data-filter="pending">Pending</button>
+            </div>
+          </div>
+
+          <div class="crud-composer glass-card">
+            <div class="task-inputs-row">
+              <input type="text" id="task-title-input" placeholder="Directive statement...">
+              <select id="task-priority-input">
+                <option value="high">High Priority</option>
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div class="composer-actions">
+              <button class="action-btn" id="save-task-btn">DISPATCH DIRECTIVE</button>
+            </div>
+          </div>
+
+          <div class="items-list" id="tasks-list-container"></div>
+        </section>
+
+        <!-- SECTION 4: CONSOLE -->
+        <section id="view-console" class="view-panel">
+          <div class="view-header">
+            <h2>COMMAND TELEMETRY LOG</h2>
+            <button class="text-btn" id="clear-console-btn">CLEAR LOG</button>
+          </div>
+          <div class="terminal-card glass-card">
+            <div class="terminal-body" id="console-stream">
+              <div class="log-entry sys">[SYSTEM BOOT] Angel Neural Shell initialized.</div>
+            </div>
+            <div class="terminal-input-bar">
+              <span class="prompt-arrow">&gt;</span>
+              <input type="text" id="manual-console-input" placeholder="Type prompt or command directly...">
+              <button id="send-console-btn">EXECUTE</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 5: SETTINGS -->
+        <section id="view-settings" class="view-panel">
+          <div class="view-header">
+            <h2>SYSTEM CONFIGURATION</h2>
+          </div>
+
+          <div class="settings-stack">
+            <div class="glass-card">
+              <h3>GOOGLE CLOUD &amp; DRIVE SYNC</h3>
+              <p class="setting-desc">OAuth 2.0 configuration for personal Drive persistence (angel_data.json).</p>
+              <div class="input-block">
+                <label>OAuth 2.0 Client ID</label>
+                <input type="text" id="g-client-id-input" placeholder="XXXXXX.apps.googleusercontent.com">
+              </div>
+              <div class="setting-row">
+                <button class="action-btn" id="save-client-id-btn">PERSIST CLIENT ID</button>
+                <button class="ctrl-btn" id="manual-sync-btn">FORCE DRIVE SYNC</button>
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <h3>GEMINI COGNITIVE CORE</h3>
+              <p class="setting-desc">Direct client-side access key for cloud reasoning.</p>
+              <div class="input-block">
+                <label>Google AI Studio API Key</label>
+                <input type="password" id="gemini-key-input" placeholder="AIzaSy...">
+              </div>
+              <button class="action-btn" id="save-gemini-key-btn">SAVE COGNITIVE KEY</button>
+            </div>
+
+            <div class="glass-card">
+              <h3>SPEECH SYNTHESIS &amp; AUDITORY MATRIX</h3>
+              <div class="input-block">
+                <label>Synthesizer Voice</label>
+                <select id="voice-picker-select"></select>
+              </div>
+              <div class="toggle-row">
+                <label for="wake-word-toggle">Wake Word ("Angel") Active</label>
+                <input type="checkbox" id="wake-word-toggle" checked>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Floating Action Mic Button for Mobile / Instant Touch PTT -->
+    <button class="mobile-mic-fab" id="mobile-mic-btn" aria-label="Microphone Action">
+      <div class="fab-pulse"></div>
+      <span class="mic-icon">🎤</span>
+    </button>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
